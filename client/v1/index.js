@@ -73,7 +73,8 @@ function sortPrice(a, b)
   return a.price - b.price;
 }
 
-var price_products = marketplace.sort(sortPrice);
+var price_products = [...marketplace].sort(sortPrice); //the [...array] is used to copy the array, otherwise it would mutate the array
+console.log("price_products");
 console.log(price_products);
 
 //More concise way
@@ -85,18 +86,25 @@ console.log(price_products);
 // 2. Create a variable and assign it the list of products by date from recent to old
 // 3. Log the variable
 
+var date_products = [...marketplace].sort((a, b) => b.date.replaceAll('-', '') - a.date.replaceAll('-', ''));
+console.log("date_products");
+console.log(date_products);
 
 // 🎯 TODO: Filter a specific price range
 // 1. Filter the list of products between 50€ and 100€
 // 2. Log the list
 
+var products_between_50_and_100 = marketplace.filter(element => element.price >= 50 && element.price <= 100);
+console.log("products_between_50_and_100");
+console.log(products_between_50_and_100);
 
 // 🎯 TODO: Average Basket
 // 1. Determine the average basket of the marketplace
 // 2. Log the average
 
-
-
+var average_basket = marketplace.reduce((a, b) => a + b.price, 0) / number_of_products;
+console.log("average_basket");
+console.log(average_basket);
 
 
 /**
@@ -122,17 +130,34 @@ console.log(price_products);
 // 2. Log the variable
 // 3. Log the number of products by brands
 
+const brands = {};
+for (let i = 0; i < marketplace.length; i++)
+{
+  if (!(marketplace[i].brand in brands))
+  {
+    brands[marketplace[i].brand] = [];
+  }
+  brands[marketplace[i].brand].push(marketplace[i]);
+}
+console.log("brands");
+console.log(brands);
+console.log(`1083: ${brands["1083"].length}; aatise: ${brands["aatise"].length}; adresse: ${brands["adresse"].length}; dedicated: ${brands["dedicated"].length}; loom: ${brands["loom"].length}`)
 
 // 🎯 TODO: Sort by price for each brand
 // 1. For each brand, sort the products by price, from highest to lowest
 // 2. Log the sort
 
+var brands_sorted_price = Object.keys(brands).map(key => [...brands[key]].sort((a, b) => b.price - a.price))
+console.log("brand_sorted_price");
+console.log(brands_sorted_price);
 
 // 🎯 TODO: Sort by date for each brand
 // 1. For each brand, sort the products by date, from old to recent
 // 2. Log the sort
 
-
+var brands_sorted_date = Object.keys(brands).map(key => [...brands[key]].sort((a, b) => a.date.replaceAll('-', '') - b.date.replaceAll('-', '')));
+console.log("brand_sorted_date");
+console.log(brands_sorted_date);
 
 
 
@@ -147,7 +172,11 @@ console.log(price_products);
 // 1. Compute the p90 price value of each brand
 // The p90 value (90th percentile) is the lower value expected to be exceeded in 90% of the products
 
-
+const brandsCopy = brands;
+Object.keys(brandsCopy).map(key => brandsCopy[key].sort((a, b) => a.price - b.price));
+var p90_brand = Object.keys(brandsCopy).map(key => brandsCopy[key][Math.round(brandsCopy[key].length*0.9) - 1].price);
+console.log("p90_brand");
+console.log(p90_brand);
 
 
 
@@ -223,20 +252,46 @@ const COTELE_PARIS = [
 // // 1. Log if we have new products only (true or false)
 // // A new product is a product `released` less than 2 weeks.
 
+function newProducts(object)
+{
+  var today = new Date().getTime();
+  for (let i = 0; i < object.length; i++)
+  {
+    var date = new Date(object[i].released).getTime();
+    if ((today - date)/86400000 > 14)
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+console.log("newProducts");
+console.log(newProducts(COTELE_PARIS));
 
 // 🎯 TODO: Reasonable price
 // // 1. Log if coteleparis is a reasonable price shop (true or false)
 // // A reasonable price if all the products are less than 100€
 
+console.log("reasonablePriceShop");
+console.log(COTELE_PARIS.every(element => element.price < 100));
 
 // 🎯 TODO: Find a specific product
 // 1. Find the product with the uuid `b56c6d88-749a-5b4c-b571-e5b5c6483131`
 // 2. Log the product
 
+console.log("specificProduct");
+console.log(COTELE_PARIS.find(element => element.uuid == 'b56c6d88-749a-5b4c-b571-e5b5c6483131'));
 
 // 🎯 TODO: Delete a specific product
 // 1. Delete the product with the uuid `b56c6d88-749a-5b4c-b571-e5b5c6483131`
 // 2. Log the new list of product
+
+var elem = COTELE_PARIS.find(element => element.uuid == 'b56c6d88-749a-5b4c-b571-e5b5c6483131');
+var indexElem = COTELE_PARIS.indexOf(elem);
+console.log("deleteSpecificProduct");
+COTELE_PARIS.splice(indexElem, 1);
+console.log(COTELE_PARIS);
 
 // 🎯 TODO: Save the favorite product
 let blueJacket = {
@@ -254,6 +309,14 @@ jacket.favorite = true;
 // 1. Log `blueJacket` and `jacket` variables
 // 2. What do you notice?
 
+console.log("Before");
+console.log("bluejacket");
+console.log(blueJacket);
+console.log("jacket");
+console.log(jacket);
+
+//They both have a property `favorite` set to true!
+
 blueJacket = {
   'link': 'https://coteleparis.com/collections/tous-les-produits-cotele/products/la-veste-bleu-roi',
   'price': 110,
@@ -262,8 +325,16 @@ blueJacket = {
 
 // 3. Update `jacket` property with `favorite` to true WITHOUT changing blueJacket properties
 
+jacket = {...blueJacket};
+jacket.favorite = true;
 
+console.log("After");
+console.log("bluejacket");
+console.log(blueJacket);
+console.log("jacket");
+console.log(jacket);
 
+//It is okay now.
 
 
 /**
@@ -275,3 +346,6 @@ blueJacket = {
 // 🎯 TODO: Save in localStorage
 // 1. Save MY_FAVORITE_BRANDS in the localStorage
 // 2. log the localStorage
+
+localStorage.setItem('MY_FAVORITE_BRANDS', JSON.stringify(MY_FAVORITE_BRANDS)); //localStorage stores only strings, we have to use JSON.stringify.
+console.log(localStorage);
