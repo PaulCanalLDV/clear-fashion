@@ -98,8 +98,8 @@ var products_between_50_and_100 = marketplace.filter(element => element.price >=
 console.log("products_between_50_and_100");
 console.log(products_between_50_and_100);
 
-// 🎯 TODO: Average Basket
-// 1. Determine the average basket of the marketplace
+// 🎯 TODO: Average price
+// 1. Determine the average price of the marketplace
 // 2. Log the average
 
 var average_basket = marketplace.reduce((a, b) => a + b.price, 0) / number_of_products;
