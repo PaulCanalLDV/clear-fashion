@@ -8,6 +8,7 @@ let currentPagination = {};
 // instantiate the selectors
 const selectShow = document.querySelector('#show-select');
 const selectPage = document.querySelector('#page-select');
+const selectBrand = document.querySelector('#brand-select');
 const sectionProducts = document.querySelector('#products');
 const spanNbProducts = document.querySelector('#nbProducts');
 
@@ -39,6 +40,11 @@ const fetchProducts = async (page = 1, size = 12) => {
       return {currentProducts, currentPagination};
     }
 
+    if (body.data.meta.pageCount < page)
+    {
+      return await fetchProducts(1, size);
+    }
+    
     return body.data;
   } catch (error) {
     console.error(error);
@@ -96,9 +102,22 @@ const renderIndicators = pagination => {
   spanNbProducts.innerHTML = count;
 };
 
+const renderBrands = products =>
+{
+  var brands_name_set = new Set(products.map(element => element.brand)); //set is used to have only one time a brand's name
+  var brands_name = Array.from(brands_name_set);
+  const options = Array.from(
+    brands_name,
+    (value, index) => `<option value="${value}">${value}</option>`
+  ).join('');
+
+  selectBrand.innerHTML = options;
+};
+
 const render = (products, pagination) => {
   renderProducts(products);
   renderPagination(pagination);
+  renderBrands(products);
   renderIndicators(pagination);
 };
 
@@ -111,9 +130,22 @@ const render = (products, pagination) => {
  * @type {[type]}
  */
 selectShow.addEventListener('change', event => {
-  fetchProducts(currentPagination.currentPage, parseInt(event.target.value))
+  fetchProducts(currentPagination.currentPage, parseInt(event.target.value)) //different way to handle with promise
     .then(setCurrentProducts)
     .then(() => render(currentProducts, currentPagination));
+});
+
+selectPage.addEventListener('change', async (event) =>
+{
+  const products = await fetchProducts(parseInt(event.target.value), selectShow.value);
+
+  setCurrentProducts(products);
+  render(currentProducts, currentPagination);
+});
+
+selectBrand.addEventListener('change', async (event) =>
+{
+
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
